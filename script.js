@@ -1,4 +1,53 @@
 // =========================================
+// PROMOTIONAL POPUP SCRIPT
+// =========================================
+
+// Show popup on page load
+window.addEventListener('load', () => {
+  // Delay popup by 1 second for better UX
+  setTimeout(() => {
+    const promoPopup = document.getElementById('promoPopup');
+    if (promoPopup) {
+      promoPopup.classList.add('show');
+      document.body.style.overflow = 'hidden'; // Prevent scrolling
+    }
+  }, 1000);
+});
+
+// Close popup function
+function closePromoPopup() {
+  const promoPopup = document.getElementById('promoPopup');
+  if (promoPopup) {
+    promoPopup.classList.remove('show');
+    document.body.style.overflow = 'auto'; // Re-enable scrolling
+  }
+}
+
+// Close button handler
+document.addEventListener('DOMContentLoaded', () => {
+  const closeBtn = document.getElementById('closePromo');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closePromoPopup);
+  }
+  
+  // Close when clicking outside
+  const promoPopup = document.getElementById('promoPopup');
+  if (promoPopup) {
+    promoPopup.addEventListener('click', (e) => {
+      if (e.target === promoPopup) {
+        closePromoPopup();
+      }
+    });
+  }
+  
+  // Close with ESC key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closePromoPopup();
+    }
+  });
+});
+// =========================================
 // Authentication System
 // =========================================
 
@@ -563,55 +612,7 @@ window.exportData = exportData;
 window.sendWhatsAppMessage = sendWhatsAppMessage;
 
 
-// =========================================
-// PROMOTIONAL POPUP SCRIPT
-// =========================================
 
-// Show popup on page load
-window.addEventListener('load', () => {
-  // Delay popup by 1 second for better UX
-  setTimeout(() => {
-    const promoPopup = document.getElementById('promoPopup');
-    if (promoPopup) {
-      promoPopup.classList.add('show');
-      document.body.style.overflow = 'hidden'; // Prevent scrolling
-    }
-  }, 1000);
-});
-
-// Close popup function
-function closePromoPopup() {
-  const promoPopup = document.getElementById('promoPopup');
-  if (promoPopup) {
-    promoPopup.classList.remove('show');
-    document.body.style.overflow = 'auto'; // Re-enable scrolling
-  }
-}
-
-// Close button handler
-document.addEventListener('DOMContentLoaded', () => {
-  const closeBtn = document.getElementById('closePromo');
-  if (closeBtn) {
-    closeBtn.addEventListener('click', closePromoPopup);
-  }
-  
-  // Close when clicking outside
-  const promoPopup = document.getElementById('promoPopup');
-  if (promoPopup) {
-    promoPopup.addEventListener('click', (e) => {
-      if (e.target === promoPopup) {
-        closePromoPopup();
-      }
-    });
-  }
-  
-  // Close with ESC key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      closePromoPopup();
-    }
-  });
-});
 
 // Buy now button - opens product detail for promotional item
 function buyPromoProduct() {
