@@ -17,7 +17,7 @@ body {
   margin: 0 auto;
   padding: 0 20px;
 }
- /* PROMO POPUP STYLES  */
+/* PROMO POPUP STYLES  */
 .promo-popup {
   display: none;
   position: fixed;
@@ -229,8 +229,12 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
@@ -1355,8 +1359,7 @@ header {
   background: #dcfce7;
   transform: translateY(-2px);
 }
-* Login Modal Specific Styles */
-.test-credentials {
+* Login Modal Specific Styles */ .test-credentials {
   background: #fef3c7;
   padding: 15px;
   border-radius: 10px;
@@ -1603,7 +1606,7 @@ footer {
 }
 
 .size-option.active::after {
-  content: '✓';
+  content: "✓";
   position: absolute;
   top: -8px;
   right: -8px;
@@ -1899,14 +1902,13 @@ footer {
   gap: 8px;
 }
 
-
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
   .hero-content,
   .product-detail {
     grid-template-columns: 1fr;
   }
-  
+
   .products-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1914,12 +1916,12 @@ footer {
   .benefits-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .reviews-grid,
   .blog-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .contact_cart {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1939,15 +1941,15 @@ footer {
     gap: 1.5rem;
     align-items: flex-start;
   }
-  
+
   .nav-links.active {
     left: 0;
   }
-  
+
   .menu-toggle {
     display: block;
   }
-  
+
   .cart-badge {
     top: 80px;
     right: 20px;
@@ -1955,46 +1957,46 @@ footer {
     height: 50px;
     font-size: 1.2rem;
   }
-  
+
   .products-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .modal-content {
     padding: 30px 20px;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .modal-actions {
     flex-direction: column;
   }
-  
+
   .hero-text h1 {
     font-size: 2.4rem;
   }
   .promo-popup {
     padding: 10px;
   }
-  
+
   .promo-popup-content {
     max-width: 95%;
     border-radius: 20px;
   }
-  
+
   .promo-actions {
     flex-direction: column;
     padding: 20px;
   }
-  
+
   .btn-promo {
     width: 100%;
     padding: 16px 20px;
     font-size: 1.05rem;
   }
-  
+
   .promo-close {
     width: 40px;
     height: 40px;
@@ -2002,47 +2004,47 @@ footer {
     right: 10px;
     top: 10px;
   }
-   .feature-container,
+  .feature-container,
   .benefits-grid,
   .reviews-grid,
   .blog-grid,
   .contact_cart {
     grid-template-columns: 1fr;
   }
-  
+
   .feature-title {
     font-size: 2.2rem;
   }
-  
+
   .feature-subtitle {
     font-size: 1rem;
   }
-  
+
   .card {
     padding: 30px 20px;
   }
-  
+
   .rating-number {
     font-size: 3rem;
   }
-  
+
   .stars {
     font-size: 1.5rem;
   }
   .modal-actions {
     grid-template-columns: 1fr;
   }
-  
+
   .selected-size-info {
     padding: 15px;
   }
-  
+
   .qty-controls button {
     width: 40px;
     height: 40px;
     font-size: 1.3rem;
   }
-  
+
   .qty-controls input {
     width: 70px;
     padding: 10px;
@@ -2051,27 +2053,27 @@ footer {
   .modal-actions {
     grid-template-columns: 1fr;
   }
-  
+
   .selected-combination-info {
     padding: 15px;
   }
-  
+
   .color-options {
     justify-content: center;
   }
-  
+
   .current-selection {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
-  
+
   .qty-controls button {
     width: 40px;
     height: 40px;
     font-size: 1.3rem;
   }
-  
+
   .qty-controls input {
     width: 70px;
     padding: 10px;
@@ -2080,21 +2082,21 @@ footer {
 }
 
 @media (max-width: 480px) {
-    .size-options,
+  .size-options,
   .color-options {
     flex-direction: column;
   }
-  
+
   .size-option,
   .color-option {
     width: 100%;
     text-align: center;
   }
-  
+
   .qty-controls {
     justify-content: center;
   }
-  
+
   .modal-actions .btn {
     font-size: 0.9rem;
     padding: 12px;
@@ -2102,22 +2104,22 @@ footer {
   .hero-text h1 {
     font-size: 2rem;
   }
-  
+
   .section-title {
     font-size: 2rem;
   }
-  
+
   .modal-content {
     padding: 20px 15px;
   }
   .promo-popup-content {
     border-radius: 16px;
   }
-  
+
   .promo-actions {
     padding: 15px;
   }
-  
+
   .btn-promo {
     padding: 14px 18px;
     font-size: 1rem;
@@ -2130,16 +2132,16 @@ footer {
   .contact {
     padding: 60px 15px;
   }
-  
+
   .feature-title,
   .section-title {
     font-size: 1.8rem;
   }
-  
+
   .card-title {
     font-size: 1.3rem;
   }
-  
+
   .benefit-card,
   .review-card,
   .contact-item {
@@ -2148,12 +2150,12 @@ footer {
   .size-options {
     flex-direction: column;
   }
-  
+
   .size-option {
     width: 100%;
     text-align: center;
   }
-  
+
   .qty-controls {
     justify-content: center;
   }
@@ -2161,7 +2163,8 @@ footer {
 
 /* Animation for attention */
 @keyframes pulseGlow {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
   }
   50% {
@@ -2173,12 +2176,17 @@ footer {
   animation: pulseGlow 2s infinite;
 }
 
-
 /* Animation for selection changes */
 @keyframes selectionChange {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .selection-changing {
