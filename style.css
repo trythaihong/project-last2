@@ -1465,6 +1465,12 @@ footer {
   gap: 50px;
   margin-bottom: 45px;
 }
+.logo1{
+  margin-top:-13px;
+  margin-bottom: 10px;
+  align-items: center;
+  display: flex;
+}
 
 .footer-section h4 {
   margin-bottom: 1.2rem;
