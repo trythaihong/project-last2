@@ -55,19 +55,32 @@
   </div>
 
   <!-- Product Detail Modal -->
-  <div id="productModal" class="modal">
-    <div class="modal-content modal-large">
-      <span class="close-modal">&times;</span>
-      <div class="product-detail">
-        <div class="product-detail-image">
-          <img id="modalProductImage" src="" alt="Product" />
-        </div>
-        <div class="product-detail-info">
-          <h2 id="modalProductName"></h2>
-          <p id="modalProductDesc"></p>
-          
-          <h3>ជ្រើសរើសទំហំ</h3>
-          <div class="size-options" id="sizeOptions"></div>
+ <!-- Product Detail Modal -->
+<div id="productModal" class="modal">
+  <div class="modal-content modal-large">
+    <span class="close-modal">&times;</span>
+    <div class="product-detail">
+      <div class="product-detail-image">
+        <img id="modalProductImage" src="" alt="Product" />
+      </div>
+      <div class="product-detail-info">
+        <h2 id="modalProductName"></h2>
+        <p id="modalProductDesc"></p>
+        
+        <h3>ជ្រើសរើសពណ៌</h3>
+        <div class="color-options" id="colorOptions"></div>
+        
+        <h3>ជ្រើសរើសទំហំ និងចំនួន</h3>
+        <div class="size-options" id="sizeOptions"></div>
+        
+        <div class="selected-combination-info" id="selectedCombinationInfo">
+          <div class="selection-display">
+            <p class="current-selection">
+              <strong>ការជ្រើសរើសបច្ចុប្បន្ន:</strong>
+              <span id="currentColor" class="color-badge">ខៀវ</span>
+              <span id="currentSize" class="size-badge">3 ម៉ែត្រ</span>
+            </p>
+          </div>
           
           <div class="price-display">
             <span class="label">តម្លៃ:</span>
@@ -75,7 +88,7 @@
           </div>
           
           <div class="quantity-selector">
-            <label>ចំនួន:</label>
+            <label>ចំនួនសម្រាប់ការរួមបញ្ចូលនេះ:</label>
             <div class="qty-controls">
               <button type="button" onclick="decreaseQty()">-</button>
               <input type="number" id="productQty" value="1" min="1" />
@@ -87,19 +100,27 @@
             <span class="label">សរុប:</span>
             <span class="total" id="totalPrice">$0.00</span>
           </div>
-          
-          <div class="modal-actions">
-            <button class="btn btn-secondary" onclick="addToCart()">
-              🛒 បញ្ចូលកន្ត្រក
-            </button>
-            <button class="btn btn-primary" onclick="buyNow()">
-              ⚡ ទិញឥឡូវនេះ
-            </button>
-          </div>
+        </div>
+        
+        <div class="combination-helper">
+          <p>💡 <strong>គន្លឹះ:</strong> អ្នកអាចជ្រើសរើសពណ៌ និងទំហំនីមួយៗ ហើយកំណត់ចំនួនផ្សេងៗគ្នាសម្រាប់រាល់ការរួមបញ្ចូល</p>
+        </div>
+        
+        <div class="modal-actions">
+          <button class="btn btn-secondary" onclick="addToCart()">
+            🛒 បញ្ចូលការរួមបញ្ចូលនេះ
+          </button>
+          <button class="btn btn-primary" onclick="addAllSizesToCart()">
+            🛍️ បញ្ចូលការរួមបញ្ចូលទាំងអស់
+          </button>
+          <button class="btn btn-primary" onclick="buyNow()">
+            ⚡ ទិញការរួមបញ្ចូលនេះឥឡូវ
+          </button>
         </div>
       </div>
     </div>
   </div>
+</div>
 
   <!-- Cart Modal -->
   <div id="cartModal" class="modal">

@@ -1,10 +1,10 @@
 // =========================================
 // CAMBO NET - Shopping Cart System
-// Version: 3.0.0
+// Version: 3.2.0 - Enhanced Size, Color & Quantity
 // =========================================
 
 // =========================================
-// PRODUCT DATA WITH SIZES AND PRICES
+// PRODUCT DATA WITH SIZES, COLORS AND PRICES
 // =========================================
 
 const productSizes = {
@@ -25,6 +25,13 @@ const productSizes = {
   ]
 };
 
+// Available colors for all products
+const availableColors = [
+  { name: "ខៀវ", value: "blue", code: "#3b82f6" },
+  { name: "ខ្មៅ", value: "black", code: "#000000" },
+  { name: "បៃតង", value: "green", code: "#22c55e" }
+];
+
 // =========================================
 // CART STATE MANAGEMENT
 // =========================================
@@ -32,16 +39,24 @@ const productSizes = {
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 let currentProduct = null;
 let selectedSize = null;
+let selectedColor = null;
+let sizeQuantities = {}; // Track quantities for each size
+let colorQuantities = {}; // Track quantities for each color combination
 
 // =========================================
 // PRODUCT DETAIL MODAL FUNCTIONS
 // =========================================
 
 /**
- * Show product detail modal with size options
+ * Show product detail modal with size and color options
  */
 function showProductDetail(name, description, image) {
   currentProduct = { name, description, image };
+  
+  // Reset selections and quantities
+  selectedColor = availableColors[0]; // Default to first color
+  sizeQuantities = {};
+  colorQuantities = {};
   
   // Update modal content
   document.getElementById('modalProductName').textContent = name;
@@ -49,23 +64,58 @@ function showProductDetail(name, description, image) {
   document.getElementById('modalProductImage').src = image;
   
   // Render size options
-  const sizeOptions = document.getElementById('sizeOptions');
-  sizeOptions.innerHTML = '';
+  renderSizeOptions(name);
   
-  productSizes[name].forEach((option, index) => {
-    const sizeBtn = document.createElement('button');
-    sizeBtn.className = 'size-option' + (index === 0 ? ' active' : '');
-    sizeBtn.textContent = option.size;
-    sizeBtn.onclick = () => selectSize(name, option.size, option.price);
-    sizeOptions.appendChild(sizeBtn);
-  });
+  // Render color options
+  renderColorOptions();
   
-  // Set default selection (first size)
+  // Set default selections
   const defaultOption = productSizes[name][0];
   selectSize(name, defaultOption.size, defaultOption.price);
+  selectColor(availableColors[0]);
   
   // Show modal
   document.getElementById('productModal').classList.add('show');
+}
+
+/**
+ * Render size options
+ */
+function renderSizeOptions(productName) {
+  const sizeOptions = document.getElementById('sizeOptions');
+  sizeOptions.innerHTML = '';
+  
+  productSizes[productName].forEach((option, index) => {
+    const sizeBtn = document.createElement('button');
+    sizeBtn.type = 'button';
+    sizeBtn.className = 'size-option' + (index === 0 ? ' active' : '');
+    sizeBtn.textContent = option.size;
+    sizeBtn.onclick = () => selectSize(productName, option.size, option.price);
+    sizeOptions.appendChild(sizeBtn);
+    
+    // Initialize quantity for this size (default 1)
+    sizeQuantities[option.size] = 1;
+  });
+}
+
+/**
+ * Render color options
+ */
+function renderColorOptions() {
+  const colorOptions = document.getElementById('colorOptions');
+  colorOptions.innerHTML = '';
+  
+  availableColors.forEach((color, index) => {
+    const colorBtn = document.createElement('button');
+    colorBtn.type = 'button';
+    colorBtn.className = 'color-option' + (index === 0 ? ' active' : '');
+    colorBtn.innerHTML = `
+      <span class="color-swatch" style="background-color: ${color.code}"></span>
+      <span class="color-name">${color.name}</span>
+    `;
+    colorBtn.onclick = () => selectColor(color);
+    colorOptions.appendChild(colorBtn);
+  });
 }
 
 /**
@@ -74,7 +124,7 @@ function showProductDetail(name, description, image) {
 function selectSize(productName, size, price) {
   selectedSize = { size, price };
   
-  // Update active state on buttons
+  // Update active state on size buttons
   document.querySelectorAll('.size-option').forEach(btn => {
     btn.classList.remove('active');
     if (btn.textContent === size) {
@@ -82,8 +132,61 @@ function selectSize(productName, size, price) {
     }
   });
   
+  // Update quantity display for selected size and color combination
+  const comboKey = getComboKey(size, selectedColor.value);
+  document.getElementById('productQty').value = colorQuantities[comboKey] || 1;
+  
   // Update price display
   updatePriceDisplay();
+}
+
+/**
+ * Handle color selection
+ */
+function selectColor(color) {
+  selectedColor = color;
+  
+  // Update active state on color buttons
+  document.querySelectorAll('.color-option').forEach(btn => {
+    btn.classList.remove('active');
+    const colorName = btn.querySelector('.color-name').textContent;
+    if (colorName === color.name) {
+      btn.classList.add('active');
+    }
+  });
+  
+  // Update product image based on color (if you have different images)
+  updateProductImageByColor();
+  
+  // Update quantity display for selected size and color combination
+  if (selectedSize) {
+    const comboKey = getComboKey(selectedSize.size, color.value);
+    document.getElementById('productQty').value = colorQuantities[comboKey] || 1;
+  }
+  
+  // Update price display
+  updatePriceDisplay();
+}
+
+/**
+ * Update product image based on selected color
+ */
+function updateProductImageByColor() {
+  if (!currentProduct || !selectedColor) return;
+  
+  const productImage = document.getElementById('modalProductImage');
+  const baseImage = currentProduct.image;
+  
+  // You can implement different images for different colors here
+  // For now, we'll just add a color filter overlay
+  productImage.style.filter = `drop-shadow(0 0 10px ${selectedColor.code}40)`;
+}
+
+/**
+ * Generate unique key for size-color combination
+ */
+function getComboKey(size, color) {
+  return `${size}-${color}`;
 }
 
 /**
@@ -101,45 +204,58 @@ function updatePriceDisplay() {
 }
 
 /**
- * Increase quantity
+ * Increase quantity for current size and color
  */
 function increaseQty() {
   const input = document.getElementById('productQty');
-  input.value = parseInt(input.value) + 1;
+  const currentValue = parseInt(input.value) || 1;
+  input.value = currentValue + 1;
+  
+  // Update quantity for current size-color combination
+  if (selectedSize && selectedColor) {
+    const comboKey = getComboKey(selectedSize.size, selectedColor.value);
+    colorQuantities[comboKey] = input.value;
+  }
+  
   updatePriceDisplay();
 }
 
 /**
- * Decrease quantity
+ * Decrease quantity for current size and color
  */
 function decreaseQty() {
   const input = document.getElementById('productQty');
-  const currentValue = parseInt(input.value);
+  const currentValue = parseInt(input.value) || 1;
   if (currentValue > 1) {
     input.value = currentValue - 1;
+    
+    // Update quantity for current size-color combination
+    if (selectedSize && selectedColor) {
+      const comboKey = getComboKey(selectedSize.size, selectedColor.value);
+      colorQuantities[comboKey] = input.value;
+    }
+    
     updatePriceDisplay();
   }
 }
 
-// =========================================
-// SHOPPING CART FUNCTIONS
-// =========================================
-
 /**
- * Add current product to cart
+ * Add current selection (size + color) to cart
  */
 function addToCart() {
-  if (!currentProduct || !selectedSize) {
-    showNotification('សូមជ្រើសរើសទំហំផលិតផល!', 'warning');
+  if (!currentProduct || !selectedSize || !selectedColor) {
+    showNotification('សូមជ្រើសរើសទំហំ និងពណ៌ផលិតផល!', 'warning');
     return;
   }
   
   const qty = parseInt(document.getElementById('productQty').value) || 1;
   
   const cartItem = {
-    id: Date.now(),
+    id: Date.now() + Math.random(),
     name: currentProduct.name,
     size: selectedSize.size,
+    color: selectedColor.name,
+    colorValue: selectedColor.value,
     price: selectedSize.price,
     quantity: qty,
     image: currentProduct.image,
@@ -150,11 +266,64 @@ function addToCart() {
   saveCart();
   updateCartBadge();
   
-  showNotification('បានបញ្ចូលទៅកន្ត្រក! 🛒', 'success');
+  showNotification(`បានបញ្ចូល ${selectedColor.name} ${selectedSize.size} ទៅកន្ត្រក! 🛒`, 'success');
   document.getElementById('productModal').classList.remove('show');
   
-  // Reset quantity to 1
+  // Reset quantity for this combination
+  const comboKey = getComboKey(selectedSize.size, selectedColor.value);
+  colorQuantities[comboKey] = 1;
   document.getElementById('productQty').value = 1;
+}
+
+/**
+ * Add all size-color combinations to cart
+ */
+function addAllSizesToCart() {
+  if (!currentProduct) {
+    showNotification('សូមជ្រើសរើសផលិតផលមុន!', 'warning');
+    return;
+  }
+  
+  let addedCount = 0;
+  
+  // Add each size-color combination with its quantity to cart
+  productSizes[currentProduct.name].forEach(sizeOption => {
+    availableColors.forEach(color => {
+      const comboKey = getComboKey(sizeOption.size, color.value);
+      const qty = colorQuantities[comboKey] || 0;
+      
+      if (qty > 0) {
+        const cartItem = {
+          id: Date.now() + Math.random(),
+          name: currentProduct.name,
+          size: sizeOption.size,
+          color: color.name,
+          colorValue: color.value,
+          price: sizeOption.price,
+          quantity: parseInt(qty),
+          image: currentProduct.image,
+          addedAt: new Date().toISOString()
+        };
+        
+        cart.push(cartItem);
+        addedCount++;
+      }
+    });
+  });
+  
+  if (addedCount > 0) {
+    saveCart();
+    updateCartBadge();
+    showNotification(`បានបញ្ចូល ${addedCount} ការរួមបញ្ចូលទៅកន្ត្រក! 🛒`, 'success');
+    document.getElementById('productModal').classList.remove('show');
+    
+    // Reset all quantities
+    Object.keys(colorQuantities).forEach(key => {
+      colorQuantities[key] = 1;
+    });
+  } else {
+    showNotification('សូមជ្រើសរើសចំនួនសម្រាប់យ៉ាងហោចណាស់មួយការរួមបញ្ចូល!', 'warning');
+  }
 }
 
 /**
@@ -167,6 +336,10 @@ function buyNow() {
   }, 300);
 }
 
+// =========================================
+// SHOPPING CART FUNCTIONS (Updated for colors)
+// =========================================
+
 /**
  * Show cart modal
  */
@@ -176,7 +349,7 @@ function showCart() {
 }
 
 /**
- * Render all cart items
+ * Render all cart items with color information
  */
 function renderCartItems() {
   const cartItemsDiv = document.getElementById('cartItems');
@@ -201,8 +374,14 @@ function renderCartItems() {
         <img src="${item.image}" alt="${item.name}" />
         <div class="cart-item-info">
           <h4>${item.name}</h4>
-          <p>ទំហំ: ${item.size}</p>
-          <p class="item-price">$${item.price.toFixed(2)} x ${item.quantity}</p>
+          <div class="item-details">
+            <p>ទំហំ: ${item.size}</p>
+            <p>ពណ៌: 
+              <span class="color-indicator" style="background-color: ${getColorCode(item.color)}"></span>
+              ${item.color}
+            </p>
+            <p class="item-price">$${item.price.toFixed(2)} x ${item.quantity}</p>
+          </div>
         </div>
         <div class="cart-item-actions">
           <span class="item-total">$${itemTotal.toFixed(2)}</span>
@@ -215,6 +394,14 @@ function renderCartItems() {
   html += '</div>';
   cartItemsDiv.innerHTML = html;
   document.getElementById('cartTotal').textContent = `$${total.toFixed(2)}`;
+}
+
+/**
+ * Get color code from color name
+ */
+function getColorCode(colorName) {
+  const color = availableColors.find(c => c.name === colorName);
+  return color ? color.code : '#ccc';
 }
 
 /**
@@ -254,21 +441,8 @@ function updateCartBadge() {
   }
 }
 
-/**
- * Clear entire cart
- */
-function clearCart() {
-  if (confirm('តើអ្នកចង់លុបផលិតផលទាំងអស់មែនទេ?')) {
-    cart = [];
-    saveCart();
-    updateCartBadge();
-    renderCartItems();
-    showNotification('កន្ត្រកទទេហើយ', 'info');
-  }
-}
-
 // =========================================
-// CHECKOUT PROCESS
+// CHECKOUT PROCESS (Updated for colors)
 // =========================================
 
 /**
@@ -301,7 +475,7 @@ function proceedToCheckout() {
 }
 
 /**
- * Render checkout items summary
+ * Render checkout items summary with color information
  */
 function renderCheckoutItems() {
   const checkoutItemsDiv = document.getElementById('checkoutItems');
@@ -314,7 +488,11 @@ function renderCheckoutItems() {
     
     html += `
       <div class="summary-row">
-        <span>${item.name} (${item.size}) x ${item.quantity}</span>
+        <span>
+          ${item.name} (${item.size}, 
+          <span class="color-text" style="color: ${getColorCode(item.color)}">${item.color}</span>) 
+          x ${item.quantity}
+        </span>
         <span>$${itemTotal.toFixed(2)}</span>
       </div>
     `;
@@ -325,72 +503,7 @@ function renderCheckoutItems() {
 }
 
 // =========================================
-// ORDER SUBMISSION
-// =========================================
-
-/**
- * Handle checkout form submission
- */
-document.addEventListener('DOMContentLoaded', () => {
-  const checkoutForm = document.getElementById('checkoutForm');
-  if (checkoutForm) {
-    checkoutForm.addEventListener('submit', handleCheckoutSubmit);
-  }
-});
-
-function handleCheckoutSubmit(e) {
-  e.preventDefault();
-  
-  const customerName = document.getElementById('customerName').value.trim();
-  const customerPhone = document.getElementById('customerPhone').value.trim();
-  const customerAddress = document.getElementById('customerAddress').value.trim();
-  
-  // Validation
-  if (!customerName || !customerPhone || !customerAddress) {
-    showNotification('សូមបំពេញព័ត៌មានឱ្យបានគ្រប់គ្រាន់!', 'warning');
-    return;
-  }
-  
-  // Create order object
-  const order = {
-    id: 'ORD' + Date.now(),
-    customer: {
-      name: customerName,
-      phone: customerPhone,
-      address: customerAddress
-    },
-    items: [...cart],
-    payment: document.querySelector('input[name="payment"]:checked').value,
-    total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-    date: new Date().toISOString(),
-    status: 'កំពុងដំណើរការ'
-  };
-  
-  // Save order to localStorage
-  const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-  orders.push(order);
-  localStorage.setItem('orders', JSON.stringify(orders));
-  
-  // Clear cart
-  cart = [];
-  saveCart();
-  updateCartBadge();
-  
-  // Close modal
-  document.getElementById('checkoutModal').classList.remove('show');
-  
-  // Show success message
-  showNotification('ការបញ្ជាទិញបានជោគជ័យ! 🎉 យើងនឹងទាក់ទងអ្នកឆាប់ៗនេះ។', 'success');
-  
-  // Reset form
-  e.target.reset();
-  
-  // Optional: Send to WhatsApp or Telegram
-  // sendOrderNotification(order);
-}
-
-// =========================================
-// ORDER HISTORY
+// ORDER HISTORY (Updated for colors)
 // =========================================
 
 /**
@@ -431,7 +544,11 @@ function showOrderHistory() {
           <div class="order-items">
             ${order.items.map(item => `
               <div class="order-item-row">
-                <span>${item.name} (${item.size}) x ${item.quantity}</span>
+                <span>
+                  ${item.name} (${item.size}, 
+                  <span style="color: ${getColorCode(item.color)}">${item.color}</span>) 
+                  x ${item.quantity}
+                </span>
                 <span>$${(item.price * item.quantity).toFixed(2)}</span>
               </div>
             `).join('')}
@@ -449,19 +566,6 @@ function showOrderHistory() {
   }
   
   document.getElementById('historyModal').classList.add('show');
-}
-
-/**
- * Get payment method display name
- */
-function getPaymentMethodName(method) {
-  const methods = {
-    'cod': 'សាច់ប្រាក់ពេលទទួល',
-    'aba': 'ABA Mobile Banking',
-    'wing': 'Wing Money',
-    'acleda': 'ACLEDA Mobile'
-  };
-  return methods[method] || method;
 }
 
 // =========================================
@@ -552,8 +656,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // Quantity input listener
   const qtyInput = document.getElementById('productQty');
   if (qtyInput) {
-    qtyInput.addEventListener('input', updatePriceDisplay);
-    qtyInput.addEventListener('change', updatePriceDisplay);
+    qtyInput.addEventListener('input', function() {
+      if (selectedSize && selectedColor) {
+        const comboKey = getComboKey(selectedSize.size, selectedColor.value);
+        colorQuantities[comboKey] = parseInt(this.value) || 1;
+      }
+      updatePriceDisplay();
+    });
+    
+    qtyInput.addEventListener('change', function() {
+      if (selectedSize && selectedColor) {
+        const comboKey = getComboKey(selectedSize.size, selectedColor.value);
+        colorQuantities[comboKey] = parseInt(this.value) || 1;
+      }
+      updatePriceDisplay();
+    });
   }
 });
 
@@ -565,7 +682,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Update cart badge on page load
   updateCartBadge();
   
-  console.log('%c🛒 Cart System Loaded', 'color: #22c55e; font-size: 14px; font-weight: bold;');
+  console.log('%c🛒 Enhanced Cart System with Colors Loaded', 'color: #22c55e; font-size: 14px; font-weight: bold;');
   console.log(`Cart items: ${cart.length}`);
 });
 
@@ -575,9 +692,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 window.showProductDetail = showProductDetail;
 window.selectSize = selectSize;
+window.selectColor = selectColor;
 window.increaseQty = increaseQty;
 window.decreaseQty = decreaseQty;
 window.addToCart = addToCart;
+window.addAllSizesToCart = addAllSizesToCart;
 window.buyNow = buyNow;
 window.showCart = showCart;
 window.removeFromCart = removeFromCart;
@@ -585,3 +704,126 @@ window.clearCart = clearCart;
 window.proceedToCheckout = proceedToCheckout;
 window.showOrderHistory = showOrderHistory;
 window.showNotification = showNotification;
+
+
+
+// =========================================
+// CHECKOUT FORM SUBMISSION HANDLER
+// =========================================
+
+/**
+ * Handle checkout form submission
+ */
+document.addEventListener('DOMContentLoaded', function() {
+  const checkoutForm = document.getElementById('checkoutForm');
+  if (checkoutForm) {
+    checkoutForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      confirmOrder();
+    });
+  }
+});
+
+/**
+ * Confirm order and process payment
+ */
+function confirmOrder() {
+  // Get form data
+  const name = document.getElementById('customerName').value;
+  const phone = document.getElementById('customerPhone').value;
+  const address = document.getElementById('customerAddress').value;
+  const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+  
+  // Validate form
+  if (!name || !phone || !address) {
+    showNotification('សូមបំពេញព័ត៌មានទាំងអស់!', 'error');
+    return;
+  }
+  
+  if (cart.length === 0) {
+    showNotification('កន្ត្រករបស់អ្នកទទេ!', 'warning');
+    return;
+  }
+  
+  // Calculate total
+  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  
+  // Create order object
+  const order = {
+    id: 'ORD-' + Date.now(),
+    date: new Date().toISOString(),
+    customer: { name, phone, address },
+    items: [...cart],
+    total: total,
+    payment: paymentMethod,
+    status: 'pending'
+  };
+  
+  // Save order to history
+  saveOrderToHistory(order);
+  
+  // Clear cart
+  clearCart();
+  
+  // Close modal
+  document.getElementById('checkoutModal').classList.remove('show');
+  
+  // Show success message
+  showNotification(`✅ ការបញ្ជាទិញជោគជ័យ! លេខបញ្ជាទិញ: ${order.id}`, 'success');
+  
+  // Optional: Show order details
+  setTimeout(() => {
+    showOrderConfirmationDetails(order);
+  }, 2000);
+}
+
+/**
+ * Save order to order history
+ */
+function saveOrderToHistory(order) {
+  let orders = JSON.parse(localStorage.getItem('orders')) || [];
+  orders.push(order);
+  localStorage.setItem('orders', JSON.stringify(orders));
+}
+
+/**
+ * Clear cart after successful order
+ */
+function clearCart() {
+  cart = [];
+  saveCart();
+  updateCartBadge();
+}
+
+/**
+ * Show detailed order confirmation
+ */
+function showOrderConfirmationDetails(order) {
+  const orderDetails = `
+ការបញ្ជាទិញជោគជ័យ! 🎉
+
+លេខបញ្ជាទិញ: ${order.id}
+ឈ្មោះអតិថិជន: ${order.customer.name}
+លេខទូរស័ព្ទ: ${order.customer.phone}
+អាសយដ្ឋាន: ${order.customer.address}
+វិធីសាស្ត្របង់ប្រាក់: ${getPaymentMethodName(order.payment)}
+សរុប: $${order.total.toFixed(2)}
+
+សូមអរគុណសម្រាប់ការទិញផលិតផលរបស់យើង!
+  `;
+  
+  // You can show this in a modal or alert
+  alert(orderDetails);
+}
+
+/**
+ * Get payment method display name
+ */
+function getPaymentMethodName(method) {
+  const methods = {
+    'cod': 'សាច់ប្រាក់ពេលទទួល',
+    'aba': 'ABA Mobile Banking', 
+    'wing': 'Wing Money'
+  };
+  return methods[method] || method;
+}
