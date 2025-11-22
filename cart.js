@@ -870,3 +870,163 @@ function getPaymentMethodName(method) {
   };
   return methods[method] || method;
 }
+// =========================================
+// MISSING FUNCTIONS - ADD THESE
+// =========================================
+
+/**
+ * Clear entire cart
+ */
+function clearCart() {
+  if (cart.length === 0) {
+    showNotification("កន្ត្រករបស់អ្នកទទេរួចហើយ!", "info");
+    return;
+  }
+  
+  if (confirm("តើអ្នកពិតជាចង់លុបផលិតផលទាំងអស់នៅក្នុងកន្ត្រកមែនទេ?")) {
+    cart = [];
+    saveCart();
+    updateCartBadge();
+    renderCartItems();
+    showNotification("បានលុបកន្ត្រកទាំងអស់!", "success");
+  }
+}
+
+/**
+ * Update current selection display
+ */
+function updateSelectionDisplay() {
+  if (selectedColor && selectedSize) {
+    document.getElementById('currentColor').textContent = selectedColor.name;
+    document.getElementById('currentSize').textContent = selectedSize.size;
+    
+    // Update color badge with actual color
+    const colorBadge = document.getElementById('currentColor');
+    colorBadge.style.backgroundColor = selectedColor.code + '20';
+    colorBadge.style.border = `1px solid ${selectedColor.code}`;
+    colorBadge.style.color = selectedColor.code;
+  }
+}
+
+/**
+ * Enhanced selectSize function with display update
+ */
+function selectSize(productName, size, price) {
+  selectedSize = { size, price };
+
+  // Update active state on size buttons
+  document.querySelectorAll(".size-option").forEach((btn) => {
+    btn.classList.remove("active");
+    if (btn.textContent === size) {
+      btn.classList.add("active");
+    }
+  });
+
+  // Update quantity display for selected size and color combination
+  const comboKey = getComboKey(size, selectedColor.value);
+  document.getElementById("productQty").value = colorQuantities[comboKey] || 1;
+
+  // Update display
+  updateSelectionDisplay();
+  updatePriceDisplay();
+}
+
+/**
+ * Enhanced selectColor function with display update
+ */
+function selectColor(color) {
+  selectedColor = color;
+
+  // Update active state on color buttons
+  document.querySelectorAll(".color-option").forEach((btn) => {
+    btn.classList.remove("active");
+    const colorName = btn.querySelector(".color-name").textContent;
+    if (colorName === color.name) {
+      btn.classList.add("active");
+    }
+  });
+
+  // Update product image based on color
+  updateProductImageByColor();
+
+  // Update quantity display for selected size and color combination
+  if (selectedSize) {
+    const comboKey = getComboKey(selectedSize.size, color.value);
+    document.getElementById("productQty").value = colorQuantities[comboKey] || 1;
+  }
+
+  // Update display
+  updateSelectionDisplay();
+  updatePriceDisplay();
+}
+
+// =========================================
+// ENHANCED INITIALIZATION
+// =========================================
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Update cart badge on page load
+  updateCartBadge();
+
+  // Enhanced modal close handlers
+  document.querySelectorAll(".close-modal").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const modal = e.target.closest(".modal");
+      if (modal) {
+        modal.classList.remove("show");
+      }
+    });
+  });
+
+  // Enhanced click outside to close
+  document.querySelectorAll(".modal").forEach((modal) => {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        modal.classList.remove("show");
+      }
+    });
+  });
+
+  // Enhanced ESC key handler
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      document.querySelectorAll(".modal.show").forEach((modal) => {
+        modal.classList.remove("show");
+      });
+    }
+  });
+
+  // Enhanced quantity input handling
+  const qtyInput = document.getElementById("productQty");
+  if (qtyInput) {
+    qtyInput.addEventListener("input", function () {
+      const value = parseInt(this.value) || 1;
+      if (value < 1) this.value = 1;
+      
+      if (selectedSize && selectedColor) {
+        const comboKey = getComboKey(selectedSize.size, selectedColor.value);
+        colorQuantities[comboKey] = value;
+      }
+      updatePriceDisplay();
+    });
+
+    qtyInput.addEventListener("change", function () {
+      const value = parseInt(this.value) || 1;
+      if (value < 1) this.value = 1;
+      
+      if (selectedSize && selectedColor) {
+        const comboKey = getComboKey(selectedSize.size, selectedColor.value);
+        colorQuantities[comboKey] = value;
+      }
+      updatePriceDisplay();
+    });
+  }
+
+  console.log(
+    "%c🛒 Enhanced Cart System Fully Loaded",
+    "color: #22c55e; font-size: 14px; font-weight: bold;"
+  );
+  console.log(`Cart items: ${cart.length}`);
+  console.log(`Available colors: ${availableColors.length}`);
+  console.log(`Product sizes: ${Object.keys(productSizes).length}`);
+});
