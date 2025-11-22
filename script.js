@@ -382,94 +382,6 @@ if (typeof showNotification === 'undefined') {
   };
 }
 
-// =========================================
-// Loading Animation
-// =========================================
-
-function showLoading() {
-  const loader = document.createElement('div');
-  loader.id = 'pageLoader';
-  loader.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.95);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 99999;
-  `;
-  loader.innerHTML = `
-    <div style="text-align: center;">
-      <div style="
-        width: 60px;
-        height: 60px;
-        border: 4px solid #e5e7eb;
-        border-top: 4px solid #22c55e;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      "></div>
-      <p style="margin-top: 20px; color: #666; font-size: 1.1rem;">កំពុងផ្ទុក...</p>
-    </div>
-  `;
-  document.body.appendChild(loader);
-}
-
-function hideLoading() {
-  const loader = document.getElementById('pageLoader');
-  if (loader) {
-    loader.style.opacity = '0';
-    loader.style.transition = 'opacity 0.3s';
-    setTimeout(() => loader.remove(), 300);
-  }
-}
-
-// Add spin animation
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  @keyframes slideInRight {
-    from {
-      transform: translateX(400px);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-  @keyframes slideOutRight {
-    from {
-      transform: translateX(0);
-      opacity: 1;
-    }
-    to {
-      transform: translateX(400px);
-      opacity: 0;
-    }
-  }
-`;
-document.head.appendChild(style);
-
-// =========================================
-// Form Validation Helper
-// =========================================
-
-function validatePhoneNumber(phone) {
-  // Cambodian phone number validation
-  const phoneRegex = /^(\+855|0)(1[0-9]|2[0-9]|3[0-9]|6[0-9]|7[0-9]|8[0-9]|9[0-9])[0-9]{6,7}$/;
-  return phoneRegex.test(phone);
-}
-
-function validateEmail(email) {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
 
 // =========================================
 // Local Storage Helper Functions
@@ -482,34 +394,7 @@ function clearAllData() {
   }
 }
 
-// Export data as JSON
-function exportData() {
-  const data = {
-    cart: JSON.parse(localStorage.getItem('cart') || '[]'),
-    orders: JSON.parse(localStorage.getItem('orders') || '[]'),
-    user: JSON.parse(localStorage.getItem('currentUser') || 'null')
-  };
-  
-  const dataStr = JSON.stringify(data, null, 2);
-  const dataBlob = new Blob([dataStr], { type: 'application/json' });
-  const url = URL.createObjectURL(dataBlob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `cambo-net-data-${Date.now()}.json`;
-  link.click();
-  URL.revokeObjectURL(url);
-  
-  showNotification('បានទាញយកទិន្នន័យ!', 'success');
-}
 
-// =========================================
-// WhatsApp Integration (Optional)
-// =========================================
-
-function sendWhatsAppMessage(phone, message) {
-  const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-  window.open(url, '_blank');
-}
 
 // =========================================
 // Initialization
@@ -548,57 +433,9 @@ window.addEventListener('unhandledrejection', (e) => {
   // You can send errors to a logging service here
 });
 
-// =========================================
-// Online/Offline Detection
-// =========================================
 
-window.addEventListener('online', () => {
-  showNotification('អ៊ីនធឺណិតភ្ជាប់ហើយ! 🌐', 'success');
-});
 
-window.addEventListener('offline', () => {
-  showNotification('អ៊ីនធឺណិតផ្តាច់! ⚠️', 'warning');
-});
 
-// =========================================
-// Prevent Right Click (Optional - remove if not needed)
-// =========================================
-
-// Uncomment to prevent right click on images
-// document.querySelectorAll('img').forEach(img => {
-//   img.addEventListener('contextmenu', (e) => e.preventDefault());
-// });
-
-// =========================================
-// Performance Monitoring (Optional)
-// =========================================
-
-if ('performance' in window) {
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      const perfData = performance.getEntriesByType('navigation')[0];
-      console.log(`Page load time: ${perfData.loadEventEnd - perfData.loadEventStart}ms`);
-    }, 0);
-  });
-}
-
-// =========================================
-// Console Welcome Message
-// =========================================
-
-console.log(`
-╔═══════════════════════════════════════╗
-║                                       ║
-║         🌱 CAMBO NET 🌱              ║
-║    សំណាញ់សម្រាប់កសិកម្ម            ║
-║                                       ║
-║  Version: 3.0.0                      ║
-║  Build: ${new Date().toLocaleDateString('km-KH')}                  ║
-║                                       ║
-╚═══════════════════════════════════════╝
-`);
-
-console.log('%cDeveloped with ❤️ for Cambodian Farmers', 'color: #22c55e; font-size: 14px; font-weight: bold;');
 
 // =========================================
 // Export functions to global scope
@@ -608,8 +445,6 @@ window.updateAuthUI = updateAuthUI;
 window.showLoginModal = showLoginModal;
 window.logout = logout;
 window.clearAllData = clearAllData;
-window.exportData = exportData;
-window.sendWhatsAppMessage = sendWhatsAppMessage;
 
 
 
@@ -628,32 +463,3 @@ function buyPromoProduct() {
   }, 300);
 }
 
-// Optional: Don't show popup again for 24 hours
-function setPromoShown() {
-  const expiryTime = new Date().getTime() + (24 * 60 * 60 * 1000); // 24 hours
-  localStorage.setItem('promoShown', expiryTime);
-}
-
-function shouldShowPromo() {
-  const promoShown = localStorage.getItem('promoShown');
-  if (!promoShown) return true;
-  
-  const expiryTime = parseInt(promoShown);
-  const now = new Date().getTime();
-  
-  if (now > expiryTime) {
-    localStorage.removeItem('promoShown');
-    return true;
-  }
-  
-  return false;
-}
-
-// Uncomment to enable 24-hour restriction
-// window.addEventListener('load', () => {
-//   if (shouldShowPromo()) {
-//     setTimeout(() => {
-//       document.getElementById('promoPopup').classList.add('show');
-//       setPromoShown();
-//     }, 1000);
-//   }
